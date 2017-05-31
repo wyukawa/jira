@@ -1,0 +1,49 @@
+group 'jira'
+version = '1.0'
+
+apply plugin: 'java'
+apply plugin: 'distribution'
+
+compileJava.options.encoding = 'UTF-8' // source encoding
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+task createDirs() << {
+    file('build/package').mkdirs()
+}
+
+task copyLibs(type: Copy, dependsOn: 'jar') {
+    from('build/libs')
+    into('build/package/lib')
+}
+
+task copyPackage(type: Copy) {
+    from('src/package')
+    into('build/package')
+}
+
+task copy(dependsOn: [
+        'createDirs',
+        'copyLibs',
+        'copyPackage']) {
+}
+
+distributions {
+    main {
+        baseName = 'jira'
+        contents {
+            from { 'build/package' }
+        }
+    }
+}
+
+distZip.dependsOn 'copy'
+
